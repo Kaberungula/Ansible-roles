@@ -1,0 +1,74 @@
+---
+- name: mysql_secure_install | updating root passwords
+  mysql_user:
+    host: "{{ item }}"
+    login_unix_socket: "{{ mariadb_login_unix_socket }}"
+    name: root
+    password: "{{ mysql_root_pass }}"
+  become: true
+  run_once: true
+  with_items:
+    - "{{ ansible_hostname }}"
+    - "127.0.0.1"
+    - "::1"
+    - localhost
+    
+- name: mysql_secure_install | configuring root my.cnf
+  template:
+    src: "root/my.cnf.j2"
+    dest: "/root/.my.cnf"
+    owner: "root"
+    group: "root"
+    mode: "u=rw,g=,o="
+  become: true
+
+- name: mysql_secure_install | updating root passwords
+  mysql_user:
+    host: "{{ item }}"
+    login_unix_socket: "{{ mariadb_login_unix_socket }}"
+    name: root
+    password: "{{ mysql_root_pass }}"
+  become: true
+  with_items:
+    - "{{ ansible_hostname }}"
+    - "127.0.0.1"
+    - "::1"
+    - localhost
+
+- name: mysql_secure_install | updating root passwords (allow from anywhere)
+  mysql_user:
+    host: "{{ item }}"
+    login_unix_socket: "{{ mariadb_login_unix_socket }}"
+    name: root
+    password: "{{ mysql_root_pass }}"
+    priv: "*.*:ALL,GRANT"
+  become: true
+  with_items:
+    - "%"
+  when: galera_allow_root_from_any|bool
+
+- name: Removes the MySQL test database
+  mysql_db: db=test state=absent
+  
+- name: Deletes anonymous MySQL server user for ansible_fqdn
+  mysql_user: user="" host="{{ ansible_hostname }}" state="absent"
+
+- name: Deletes anonymous MySQL server user for localhost
+  mysql_user: user="" state="absent"
+
+- name: Secures the MySQL root user
+  mysql_user: 
+    user="root"
+    password="{{ mysql_root_pass }}"
+    host="{{ item }}"
+  with_items:
+      - ::1
+      - 127.0.0.1
+      - localhost
+      - "{{ ansible_hostname }}"
+
+- name: mysql_secure_install | marking mysq secure already complete
+  file:
+    path: "/etc/mysql_secure_install"
+    state: "touch"
+  become: true

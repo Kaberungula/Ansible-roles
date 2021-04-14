@@ -1,0 +1,17 @@
+---
+- name: Centos8 | install galera
+  dnf:
+   name:
+    - MariaDB-server
+    - MariaDB-client
+    - rsync
+    - galera
+   enablerepo: mariadb
+   state: latest
+
+- name: Centos8 | ensuring mariadb mysql is enabled on boot and started
+  service:
+    name: "mysql"
+    state: "started"
+    enabled: yes
+  become: true

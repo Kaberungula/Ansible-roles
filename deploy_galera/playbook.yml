@@ -1,0 +1,6 @@
+---
+- name: redhat | install GALERA--CLUSTER
+  hosts: galtest
+  become: yes
+  roles:
+    - deploy_galera

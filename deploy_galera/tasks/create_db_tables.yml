@@ -1,0 +1,25 @@
+---
+- name: Create new databases for openstack services
+  mysql_db:
+    login_unix_socket: "{{ mariadb_login_unix_socket }}"
+    login_user: root
+    login_password: "{{ mysql_root_pass }}"
+    name: "{{ db_names }}"
+    state: present
+  when:
+    inventory_hostname == galera_mysql_master_node
+    
+- name: Create user with password, all database privileges and 'WITH GRANT OPTION' in db
+  mysql_user:
+    login_unix_socket: "{{ mariadb_login_unix_socket }}"
+    login_user: root
+    login_password: "{{ mysql_root_pass }}"
+    state: present
+    name: "{{ item }}"
+    password: "{{ mysql_root_pass }}"
+    update_password: always
+    priv:
+      "{{ item }}.*:ALL,GRANT"
+  loop: "{{ db_names }}"
+  when:
+    inventory_hostname == galera_mysql_master_node

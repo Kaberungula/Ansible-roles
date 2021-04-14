@@ -1,0 +1,43 @@
+---
+- name: MAIN | check repo MariaDB exist
+  stat:
+    path: "/etc/yum.repos.d/MariaDB.repo"
+  register: "repo_exist"
+
+- name: MAIN | check repo override file exist
+  stat:
+    path: "/etc/systemd/system/mariadb.service.d/override.conf"
+  register: "override_exist"
+  
+- name: MAIN | check mysql_secure file exist
+  stat:
+    path: "/etc/mysql_secure_install"
+  register: "mysql_exist"
+
+# Installing repository
+- include: inst-maria-repo.yml
+  when: not repo_exist.stat.exists
+
+# Installing MariaDB, galera, rsync
+- include: inst-galera.yml
+
+# Other python libraries
+- include: mysql-python_dependencies.yml
+
+# Initial setup of the base
+- include: mysql_secure_install.yml
+  when: not mysql_exist.stat.exists
+
+# Change the limit files
+- include: change-limit-file.yml
+  when: not override_exist.stat.exists
+
+# Configure cluster
+- include: cluster_setup.yml
+
+# Destroy cluster
+- include: cluster_unconf.yml
+  when: cl_dest == true
+  
+# Create users
+- include: create_db_tables.yml

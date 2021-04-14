@@ -1,0 +1,8 @@
+---
+- name: Centos | adding mariadb repo
+  template:
+    src: /etc/ansible/roles/deploy_galera/templates/etc/yum.repos.d/mariadb.repo.j2
+    dest: /etc/yum.repos.d/MariaDB.repo
+    owner: "root"
+    group: "root"
+  register: repo_added

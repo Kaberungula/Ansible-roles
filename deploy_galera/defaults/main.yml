@@ -1,0 +1,47 @@
+---
+# Defines to deploy the cluster (true) or destroy (false)
+cl_dest: false
+
+# Install Repo
+RedHat_8_Extra_Packages:
+ - python3-pip
+ - python3-devel
+
+mariadb_redhat_repo: "http://yum.mariadb.org/10.5/centos8-amd64"
+mariadb_redhat_repo_key: "https://yum.mariadb.org/RPM-GPG-KEY-MariaDB"
+
+# Defines if root logins should be allowed from any host
+galera_allow_root_from_any: false
+
+# Define interface in which to bind
+# ex. eth0|eth1|enp0s3|enp0s8
+galera_cluster_bind_interface: "ens224"
+
+# Define Ansible group in which the nodes exist to be part of the cluster
+galera_cluster_nodes_group: "galtest"
+
+# Master Node in cluster
+galera_mysql_master_node: "{{ groups[galera_cluster_nodes_group][0] }}"
+
+# MariaDB root passwd
+mysql_root_pass: "ohCV5vYKzWF8Y6jLvfNE"
+
+# Limit of files opened by the user
+LimitNOFILES: 10000
+
+## Server.cnf
+data_dir: /var/lib/mysql
+mysql_log: /var/log/mysqld.log
+
+#[galera]
+cluster_name: galera-test
+
+# Set db name for openstack services
+db_names:
+   - "keystone"
+   - "neutron"
+   - "glance"
+   - "placement"
+   - "nova"
+   - "nova_api"
+   - "nova_cell0"
