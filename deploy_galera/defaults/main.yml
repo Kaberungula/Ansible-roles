@@ -24,7 +24,7 @@ galera_cluster_nodes_group: "galtest"
 galera_mysql_master_node: "{{ groups[galera_cluster_nodes_group][0] }}"
 
 # MariaDB root passwd
-mysql_root_pass: "ohCV5vYKzWF8Y6jLvfNE"
+mysql_root_pass: "*****************"
 
 # Limit of files opened by the user
 LimitNOFILES: 10000
